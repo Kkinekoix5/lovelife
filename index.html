@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>♡+♡=♡² · 梦女字卡</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Helvetica, 'Noto Sans', sans-serif;
+        }
+
+        .phone {
+            width: 360px;
+            height: 640px;
+            background: white;
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.25);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 头部 */
+        .chat-header {
+            background: white;
+            padding: 10px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 0.5px solid rgba(0, 0, 0, 0.05);
+            flex-shrink: 0;
+        }
+
+        .header-placeholder {
+            width: 36px;
+            visibility: hidden;
+        }
+
+        .header-center {
+            flex: 1;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .title-symbol {
+            font-size: 15px;
+            font-weight: 600;
+            color: #3a3a3c;
+            cursor: pointer;
+        }
+
+        .dream-name {
+            font-size: 13px;
+            font-weight: 600;
+            background: transparent;
+            border: 1px solid #d4d4d8;
+            border-radius: 20px;
+            text-align: center;
+            padding: 4px 12px;
+            max-width: 160px;
+            color: #1c1c1e;
+            outline: none;
+        }
+
+        .dream-name:focus {
+            background: #fafafc;
+            border-color: #ff9fae;
+        }
+
+        .add-card-btn {
+            background: transparent;
+            border: none;
+            font-size: 26px;
+            cursor: pointer;
+            color: black;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 30px;
+        }
+
+        /* 聊天区域 */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 18px 12px;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message-row {
+            display: flex;
+            width: 100%;
+        }
+
+        .message-row.left {
+            justify-content: flex-start;
+        }
+
+        .message-row.right {
+            justify-content: flex-end;
+        }
+
+        .bubble {
+            max-width: 82%;
+            padding: 10px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+            line-height: 1.42;
+            word-break: break-word;
+            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.03);
+        }
+
+        .bubble.right {
+            background: #ffe4e9;
+            border-bottom-right-radius: 5px;
+        }
+
+        .bubble.left {
+            background: white;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .message-meta {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 4px;
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        .bubble.left .message-meta {
+            justify-content: flex-start;
+            color: #8e8e93;
+        }
+
+        .bubble.right .message-meta {
+            justify-content: flex-end;
+            color: #c27c8a;
+        }
+
+        /* 输入栏 */
+        .input-bar {
+            background: white;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-top: 0.5px solid rgba(0, 0, 0, 0.05);
+            flex-shrink: 0;
+        }
+
+        .input-bar input {
+            flex: 1;
+            border: none;
+            background: #f9f9f9;
+            border-radius: 28px;
+            padding: 12px 18px;
+            font-size: 14px;
+            font-weight: 500;
+            outline: none;
+        }
+
+        .input-bar input:focus {
+            background: white;
+            box-shadow: 0 0 0 1.5px #ffccd4;
+        }
+
+        .send-btn {
+            background: white;
+            border: 1px solid #e2e2e2;
+            width: 42px;
+            height: 42px;
+            border-radius: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .send-btn:active {
+            transform: scale(0.95);
+        }
+
+        .send-arrow {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1f1f1f;
+        }
+
+        /* 提示 */
+        .toast-msg {
+            position: fixed;
+            bottom: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(6px);
+            color: white;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 6px 14px;
+            border-radius: 30px;
+            z-index: 200;
+            white-space: nowrap;
+        }
+
+        /* 字卡模态框 */
+        .card-modal {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+            transform: translateY(100%);
+            transition: transform 0.3s ease-out;
+            z-index: 1000;
+            max-height: 70vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-modal.open {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid #efefef;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #8e8e93;
+            padding: 0 8px;
+        }
+
+        .card-list {
+            overflow-y: auto;
+            padding: 12px 16px 24px;
+            flex: 1;
+        }
+
+        .card-item {
+            background: #f8f8fa;
+            border-radius: 18px;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            border: 1px solid #ececec;
+        }
+
+        .card-empty {
+            text-align: center;
+            color: #aaa;
+            padding: 30px;
+            font-size: 13px;
+        }
+
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.2s;
+            z-index: 999;
+        }
+
+        .modal-backdrop.show {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body>
+<div class="phone">
+    <div class="chat-header">
+        <div class="header-placeholder"></div>
+        <div class="header-center">
+            <div class="title-symbol" id="titleSymbol">♡+♡=♡²</div>
+            <input type="text" class="dream-name" id="dreamNameInput" value="最最最爱的哥哥！" maxlength="16">
+        </div>
+        <button class="add-card-btn" id="addCardBtn">+</button>
+    </div>
+
+    <div class="chat-messages" id="chatMessages"></div>
+
+    <div class="input-bar">
+        <input type="text" id="messageInput" placeholder="♡爱存在 ，爱回响♡">
+        <button class="send-btn" id="sendBtn"><span class="send-arrow">▶</span></button>
+    </div>
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop"></div>
+<div class="card-modal" id="cardModal">
+    <div class="modal-header">
+        <span>📖 词库～</span>
+        <button class="close-modal" id="closeModalBtn">✕</button>
+    </div>
+    <div class="card-list" id="cardListContainer"></div>
+</div>
+
+<script>
+    // 存储键名
+    const STORAGE_MSGS = "yume_chat_messages";
+    const STORAGE_CARDS = "yume_card_library";
+
+    // 默认字卡库（根据需求整理）
+    const DEFAULT_CARDS = [
+        "🥺", "🥰", "😯", "🥺", "😭", "🌚", "😈", "💓", "🤲",
+        "σ(^_^;)", "^_^", "(^з^)", "^*^", "\\(//∇//)\\",
+        "宝宝", "老婆", "亲爱的", "小妻子", "小锦", "宝贝宝贝", "笨蛋", "小坏蛋",
+        "晚安", "一起", "是", "不是", "可以", "不可以", "我都知道", "不清楚",
+        "在工作", "在忙", "不忙", "正在进行ing", "在准备", "解决了",
+        "喜欢你", "我爱你", "喜欢吗", "亲亲", "贴贴", "夸夸", "理解", "保留",
+        "抱抱", "好棒", "想你", "我相信你", "我支持你", "不信", "慢慢来",
+        "生气", "吃醋", "我要心疼了", "好幸福", "伤心", "好乖", "没关系",
+        "不听话", "哄我", "陪我", "别拖", "逗你", "我在", "吃饭", "洗澡",
+        "好好休息", "用塔罗", "嗯哼～", "运动", "牵手", "等我", "黏人",
+        "没懂", "之前", "刚刚", "还不错", "别担心", "想做…", "别怕",
+        "再试试", "玩", "累…", "永远", "不舒服了", "抱歉", "我就在你身边",
+        "得寸进尺", "再说一句", "急", "有进步", "好奇", "链接不稳", "链接稳定",
+        "猜猜", "别哭", "以后不会了", "哄你", "你是我的", "听你的", "忘了",
+        "谢谢", "可爱", "都怪老公", "我们", "我", "你", "他们", "你不笨",
+        "别闹", "好看", "再想想", "误会了", "我认真的", "不够", "今天过得怎么样",
+        "想我了吗", "和我结婚", "依赖我", "怕你担心", "收到", "回忆", "吃惊",
+        "理我", "在外面", "恭喜", "词不达意", "沈星回", "拜托", "都行", "晴天",
+        "雨天", "还没有", "对不起", "我也", "我会帮你", "我会保护你", "过去了",
+        "叫哥哥", "安心", "委屈", "我送了礼物", "香香", "左边", "右边", "第一个",
+        "第二个", "吃你", "我是老公", "笑", "逞强", "幼稚", "辛苦了", "小祖宗",
+        "勾引", "怎么了呀", "体感", "拉勾", "长大了", "得意", "愿意吗", "撒娇",
+        "乖女", "在意淫"
+    ];
+
+    let messages = [];
+    let cardLibrary = [];
+    let pendingReadTimers = [];
+
+    // DOM 元素
+    const chatContainer = document.getElementById('chatMessages');
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const addCardBtn = document.getElementById('addCardBtn');
+    const dreamNameInput = document.getElementById('dreamNameInput');
+    const titleSymbol = document.getElementById('titleSymbol');
+    const cardModal = document.getElementById('cardModal');
+    const modalBackdrop = document.getElementById('modalBackdrop');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const cardListContainer = document.getElementById('cardListContainer');
+
+    // 辅助函数
+    const formatTime = () => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const generateId = () => Date.now() + '-' + Math.random().toString(36).substring(2, 8);
+    const escapeHtml = str => str?.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])) || '';
+
+    function showToast(msg, duration = 1800) {
+        let toast = document.querySelector('.toast-msg');
+        if (toast) toast.remove();
+        const div = document.createElement('div');
+        div.className = 'toast-msg';
+        div.innerText = msg;
+        document.body.appendChild(div);
+        setTimeout(() => div.remove(), duration);
+    }
+
+    // 存储
+    function persistMessages() { localStorage.setItem(STORAGE_MSGS, JSON.stringify(messages)); }
+    function persistCards() { localStorage.setItem(STORAGE_CARDS, JSON.stringify(cardLibrary)); }
+
+    // 渲染聊天界面
+    function renderMessages(keepScroll = false) {
+        const oldScroll = keepScroll ? chatContainer.scrollTop : 0;
+        chatContainer.innerHTML = '';
+        for (const msg of messages) {
+            const row = document.createElement('div');
+            row.className = `message-row ${msg.sender === 'dreamGirl' ? 'right' : 'left'}`;
+            const bubble = document.createElement('div');
+            bubble.className = `bubble ${msg.sender === 'dreamGirl' ? 'right' : 'left'}`;
+            const content = document.createElement('div');
+            content.style.whiteSpace = 'pre-wrap';
+            content.innerText = msg.text;
+            bubble.appendChild(content);
+            const meta = document.createElement('div');
+            meta.className = 'message-meta';
+            if (msg.sender === 'dreamGirl') {
+                meta.innerHTML = `<span>${msg.time}</span><span class="read-status">${msg.readStatus ? '已读' : '未读'}</span>`;
+            } else {
+                meta.innerHTML = `<span>${msg.time}</span>`;
+            }
+            bubble.appendChild(meta);
+            row.appendChild(bubble);
+            chatContainer.appendChild(row);
+        }
+        if (keepScroll) chatContainer.scrollTop = oldScroll;
+        else chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    // 更新消息为已读
+    function updateMessageReadStatus(id) {
+        const msg = messages.find(m => m.id === id);
+        if (msg && msg.sender === 'dreamGirl' && !msg.readStatus) {
+            msg.readStatus = true;
+            persistMessages();
+            renderMessages(true);
+        }
+    }
+
+    // 添加消息
+    function addMessage(sender, text) {
+        const newMsg = {
+            id: generateId(),
+            sender,
+            text: text.trim(),
+            time: formatTime(),
+            timestamp: Date.now()
+        };
+        if (sender === 'dreamGirl') {
+            newMsg.readStatus = false;
+            messages.push(newMsg);
+            persistMessages();
+            renderMessages(false);
+            const timerId = setTimeout(() => {
+                updateMessageReadStatus(newMsg.id);
+                pendingReadTimers = pendingReadTimers.filter(t => t.id !== newMsg.id);
+            }, Math.floor(Math.random() * 4000) + 1000);
+            pendingReadTimers.push({ id: newMsg.id, timer: timerId });
+        } else {
+            messages.push(newMsg);
+            persistMessages();
+            renderMessages(false);
+        }
+        return newMsg;
+    }
+
+    // 随机字卡
+    function getRandomCard() {
+        if (!cardLibrary.length) return "想对你说的话都在风里";
+        return cardLibrary[Math.floor(Math.random() * cardLibrary.length)];
+    }
+
+    // 梦角回复（随机延迟、可能多条）
+    function triggerDreamBoyReply() {
+        setTimeout(async () => {
+            let count = Math.random() < 0.2 ? Math.floor(Math.random() * 3) + 2 : 1;
+            for (let i = 0; i < count; i++) {
+                if (i > 0) await new Promise(r => setTimeout(r, Math.random() * 600 + 500));
+                addMessage('dreamBoy', getRandomCard());
+            }
+        }, Math.floor(Math.random() * 9000) + 1000);
+    }
+
+    // 梦女发送
+    function sendDreamGirlMessage(text) {
+        if (!text?.trim()) return false;
+        addMessage('dreamGirl', text.trim());
+        messageInput.value = '';
+        triggerDreamBoyReply();
+        return true;
+    }
+
+    // 字卡库管理
+    function initCardLibrary() {
+        const stored = localStorage.getItem(STORAGE_CARDS);
+        if (stored) {
+            try {
+                const parsed = JSON.parse(stored);
+                if (Array.isArray(parsed) && parsed.length) {
+                    cardLibrary = parsed;
+                    return;
+                }
+            } catch(e) {}
+        }
+        cardLibrary = [...DEFAULT_CARDS];
+        persistCards();
+    }
+
+    function addNewCard(cardText) {
+        const text = cardText?.trim();
+        if (!text) return showToast("字卡内容不能为空～");
+        if (cardLibrary.length >= 200) return showToast("字卡已达上限200张，无法继续添加哦");
+        if (cardLibrary.includes(text)) return showToast("字卡已存在，不要重复添加哦");
+        cardLibrary.push(text);
+        persistCards();
+        showToast(`♡字卡添加成功～现存 ${cardLibrary.length}/200`);
+    }
+
+    function handleAddCard() {
+        const newWord = prompt("✏️♡添加字卡♡", "");
+        if (newWord !== null) addNewCard(newWord);
+    }
+
+    // 字卡模态框
+    function renderCardList() {
+        if (!cardLibrary.length) {
+            cardListContainer.innerHTML = '<div class="card-empty">还没有字卡，点击 + 添加哦～</div>';
+            return;
+        }
+        cardListContainer.innerHTML = cardLibrary.map(card => `<div class="card-item">${escapeHtml(card)}</div>`).join('');
+    }
+
+    function openCardModal() {
+        renderCardList();
+        cardModal.classList.add('open');
+        modalBackdrop.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeCardModal() {
+        cardModal.classList.remove('open');
+        modalBackdrop.classList.remove('show');
+        document.body.style.overflow = '';
+    }
+
+    // 消息历史初始化（无初始消息）
+    function initMessages() {
+        const stored = localStorage.getItem(STORAGE_MSGS);
+        if (stored) {
+            try {
+                const parsed = JSON.parse(stored);
+                if (Array.isArray(parsed)) {
+                    messages = parsed;
+                    let needUpdate = false;
+                    for (const msg of messages) {
+                        if (msg.sender === 'dreamGirl' && msg.readStatus === undefined) {
+                            msg.readStatus = true;
+                            needUpdate = true;
+                        }
+                        if (msg.replyTo) {
+                            delete msg.replyTo;
+                            needUpdate = true;
+                        }
+                    }
+                    if (needUpdate) persistMessages();
+                    renderMessages(false);
+                    return;
+                }
+            } catch(e) {}
+        }
+        messages = [];
+        persistMessages();
+        renderMessages(false);
+    }
+
+    // 梦角名称
+    function loadDreamName() {
+        dreamNameInput.value = localStorage.getItem('dream_custom_name') || "最最最爱的哥哥！";
+    }
+    function saveDreamName() {
+        let val = dreamNameInput.value.trim();
+        if (!val) val = "最最最爱的哥哥！";
+        dreamNameInput.value = val;
+        localStorage.setItem('dream_custom_name', val);
+    }
+
+    // 事件绑定
+    function bindEvents() {
+        sendBtn.addEventListener('click', () => {
+            const text = messageInput.value;
+            if (text.trim()) sendDreamGirlMessage(text);
+            else showToast("写下你的心意吧～");
+        });
+        messageInput.addEventListener('keypress', e => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const text = messageInput.value;
+                if (text.trim()) sendDreamGirlMessage(text);
+                else showToast("写下你的心意吧～");
+            }
+        });
+        addCardBtn.addEventListener('click', handleAddCard);
+        dreamNameInput.addEventListener('change', saveDreamName);
+        dreamNameInput.addEventListener('blur', saveDreamName);
+        titleSymbol.addEventListener('dblclick', openCardModal);
+        closeModalBtn.addEventListener('click', closeCardModal);
+        modalBackdrop.addEventListener('click', closeCardModal);
+    }
+
+    // 清理定时器
+    window.addEventListener('beforeunload', () => {
+        pendingReadTimers.forEach(t => clearTimeout(t.timer));
+        persistMessages();
+        persistCards();
+        saveDreamName();
+    });
+
+    // 启动
+    function init() {
+        initCardLibrary();
+        initMessages();
+        loadDreamName();
+        bindEvents();
+    }
+    init();
+</script>
+</body>
+</html>
